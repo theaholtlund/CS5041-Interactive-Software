@@ -3,6 +3,9 @@
 <!-- Matriculation numbers: 220024877, 180000870, 210000448 -->
 <!-- Configuring the MicroHelper for Disability Assistance -->
 
+<!-- The code is based on "Getting started with the Web Serial API" tutorial -->
+<!-- Turotial by Google Codelabs, can be found here: https://codelabs.developers.google.com/web-serial#0 -->
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -10,11 +13,70 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="/config-styling.css" />
-    <script src="/micro-config.js" defer></script>
   </head>
   <body>
     <header class="header">
-      <h1>Getting Started with Web Serial</h1>
+      <h1>Configurating Your MicroHelper</h1>
     </header>
+    <main class="main">
+      <div id="notSupported" class="hidden">
+        Sorry, <b>Web Serial</b> is not supported on this device, make sure
+        you're running Chrome 78 or later and have enabled the
+        <code>#enable-experimental-web-platform-features</code> flag in
+        <code>chrome://flags</code>
+      </div>
+      <br />
+      <button id="butConnect" type="button">Connect</button>
+
+      <div id="microbit">
+        <svg viewBox="0 0 100 20">
+          <rect id="rectbox" width="0" height="20" fill="green" />
+        </svg>
+
+        <span class="mb-button" id="leftBut"></span>
+        <span class="mb-matrix">
+          <div>
+            <input disabled class="led" type="checkbox" id="led-r0-c0" />
+            <input disabled class="led" type="checkbox" id="led-r0-c1" />
+            <input disabled class="led" type="checkbox" id="led-r0-c2" />
+            <input disabled class="led" type="checkbox" id="led-r0-c3" />
+            <input disabled class="led" type="checkbox" id="led-r0-c4" />
+          </div>
+          <div>
+            <input disabled class="led" type="checkbox" id="led-r1-c0" />
+            <input disabled class="led" type="checkbox" id="led-r1-c1" />
+            <input disabled class="led" type="checkbox" id="led-r1-c2" />
+            <input disabled class="led" type="checkbox" id="led-r1-c3" />
+            <input disabled class="led" type="checkbox" id="led-r1-c4" />
+          </div>
+          <div>
+            <input disabled class="led" type="checkbox" id="led-r2-c0" />
+            <input disabled class="led" type="checkbox" id="led-r2-c1" />
+            <input disabled class="led" type="checkbox" id="led-r2-c2" />
+            <input disabled class="led" type="checkbox" id="led-r2-c3" />
+            <input disabled class="led" type="checkbox" id="led-r2-c4" />
+          </div>
+          <div>
+            <input disabled class="led" type="checkbox" id="led-r3-c0" />
+            <input disabled class="led" type="checkbox" id="led-r3-c1" />
+            <input disabled class="led" type="checkbox" id="led-r3-c2" />
+            <input disabled class="led" type="checkbox" id="led-r3-c3" />
+            <input disabled class="led" type="checkbox" id="led-r3-c4" />
+          </div>
+          <div>
+            <input disabled class="led" type="checkbox" id="led-r4-c0" />
+            <input disabled class="led" type="checkbox" id="led-r4-c1" />
+            <input disabled class="led" type="checkbox" id="led-r4-c2" />
+            <input disabled class="led" type="checkbox" id="led-r4-c3" />
+            <input disabled class="led" type="checkbox" id="led-r4-c4" />
+          </div>
+        </span>
+        <span class="mb-button" id="rightBut"></span>
+      </div>
+
+      <pre id="log"></pre>
+      <script></script>
+      <script src="/micro-config.js" defer></script>
+    </main>
   </body>
 </html>
