@@ -15,7 +15,60 @@ let inputDone;
 let outputDone;
 let inputStream;
 let outputStream;
+
+// TODO delete this
 let testData = 1000;
+// We expect a value to be sent via serial containing a 6 bit number, a starting bit and a final parity
+// bit making the number of 1's odd.
+const UPPER_CALIBRATION_BOUND = 63;
+const LOWER_CALIBRATION_BOUND = 0;
+
+
+// Function used to check there is an odd number of 1's
+function count1s(bin_string) {
+ let count = 0;
+ for (let i = 0; i < bin_string.length; i++) {
+   count = (bin_string[i] == '1') ? count + 1 : count;
+ }
+ return count;
+}
+
+
+// Converts 8 bit binary string, including start and parity bits, into an int
+function binToInt(bin_string) {
+  console.log("Bin TO INt");
+ let s_val = 0;
+ s_val = (bin_string[1] == "1") ? s_val + 32 : s_val;
+ s_val = (bin_string[2] == "1") ? s_val + 16 : s_val;
+ s_val = (bin_string[3] == "1") ? s_val + 8 : s_val;
+ s_val = (bin_string[4] == "1") ? s_val + 4 : s_val;
+ s_val = (bin_string[5] == "1") ? s_val + 2 : s_val;
+ s_val = (bin_string[6] == "1") ? s_val + 1 : s_val;
+ return s_val;
+}
+
+
+// Return positive int if the string is valid, -1 if not
+function checkStringValidity(bin_string) {
+  try {
+    const int_val = parseInt(bin_string)
+    const str_val = int_val.toString()
+    console.log(str_val)
+    console.log(str_val.length)
+    if (str_val.length == 8) {
+      // console.log("bin_string1");
+      if (count1s(str_val) % 2 == 1) {
+        // console.log("bin_string2");
+        if (str_val[0] == "1") {
+          return binToInt(str_val);
+        }
+      }
+    }
+    return -1;
+  } catch {
+    return -1;
+  }
+}
 
 // Define necessary variables from the HTML user interface in JS
 const log = document.getElementById("log");
@@ -52,7 +105,7 @@ async function connect() {
   // Request a port and open a connection.
   port = await navigator.serial.requestPort();
   // Wait for the port to open.
-  await port.open({ baudRate: 9600 });
+  await port.open({ baudRate: 115200, bufferSize: 255 });
 
   // Using the JavaScript built-in Web API object TextDecoderStream to setup the output stream
   const encoder = new TextEncoderStream();
@@ -64,7 +117,11 @@ async function connect() {
   inputDone = port.readable.pipeTo(decoder.writable);
   inputStream = decoder.readable
     .pipeThrough(new TransformStream(new LineBreakTransformer()))
-    .pipeThrough(new TransformStream(new JSONTransformer()));
+    // .pipeThrough(new TransformStream(new JSONTransformer()));
+
+  // let decoder = new TextDecoderStream();
+  // inputDone = port.readable.pipeTo(decoder.writable);
+  // inputStream = decoder.readable;
 
   reader = inputStream.getReader();
   readSerial();
@@ -80,6 +137,7 @@ async function disconnect() {
 
   // Close the input stream (reader)
   if (reader) {
+    // console.log("Reader is dead");
     await reader.cancel();
     await inputDone.catch(() => {});
     reader = null;
@@ -116,11 +174,11 @@ async function clickConnect() {
 
   // Reset the grid on connect here.
   drawGrid(GRID_HAPPY);
-  sendGrid();
+  // sendGrid();
 
   // Initialize micro:bit buttons.
-  watchButton("BTN1");
-  watchButton("BTN2");
+  // watchButton("BTN1");
+  // watchButton("BTN2");
 
   toggleUIConnected(true);
 }
@@ -130,11 +188,19 @@ async function clickConnect() {
  * Reads data from the serial input and use it to populate the bar
  */
 async function readSerial() {
+  // let container = "";
   while (true) {
+    // console.log("Listening:");
     const { value, done } = await reader.read();
+    // console.log("Listening:");
     if (value) {
+      // container += value;
+      // const lines = this.container.split('\r\n');
+      // container = lines.pop();
+      // lines.forEach(line => updateBar(line))
       // Do something with the serial data here
       updateBar(value);
+      // console.log(value);
     }
     if (done) {
       console.log("[readSerial] DONE", done);
@@ -250,6 +316,11 @@ function toggleUIConnected(connected) {
 document.getElementById("rectbox").setAttribute("width", testData);
 
 function updateBar(value) {
-  const width = (value / 100) * 100; // Add the max value instead, * 100 to convert to percentage
-  document.getElementById("rectbox").setAttribute("width", width + "%");
+  const val = checkStringValidity(value);
+  console.log("value : " + val);
+  if (val > 0) {
+    console.log("Recieved: " + val);
+    const width = (val / 100) * 100; // Add the max value instead, * 100 to convert to percentage
+    document.getElementById("rectbox").setAttribute("width", width + "%");
+  }
 }
