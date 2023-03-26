@@ -16,45 +16,40 @@ let outputDone;
 let inputStream;
 let outputStream;
 
-// TODO delete this
-let testData = 1000;
 // We expect a value to be sent via serial containing a 6 bit number, a starting bit and a final parity
-// bit making the number of 1's odd.
+// Bit making the number of 1's odd.
 const UPPER_CALIBRATION_BOUND = 63;
 const LOWER_CALIBRATION_BOUND = 0;
 
-
 // Function used to check there is an odd number of 1's
 function count1s(bin_string) {
- let count = 0;
- for (let i = 0; i < bin_string.length; i++) {
-   count = (bin_string[i] == '1') ? count + 1 : count;
- }
- return count;
+  let count = 0;
+  for (let i = 0; i < bin_string.length; i++) {
+    count = bin_string[i] == "1" ? count + 1 : count;
+  }
+  return count;
 }
-
 
 // Converts 8 bit binary string, including start and parity bits, into an int
 function binToInt(bin_string) {
   console.log("Bin TO INt");
- let s_val = 0;
- s_val = (bin_string[1] == "1") ? s_val + 32 : s_val;
- s_val = (bin_string[2] == "1") ? s_val + 16 : s_val;
- s_val = (bin_string[3] == "1") ? s_val + 8 : s_val;
- s_val = (bin_string[4] == "1") ? s_val + 4 : s_val;
- s_val = (bin_string[5] == "1") ? s_val + 2 : s_val;
- s_val = (bin_string[6] == "1") ? s_val + 1 : s_val;
- return s_val;
+  let s_val = 0;
+  s_val = bin_string[1] == "1" ? s_val + 32 : s_val;
+  s_val = bin_string[2] == "1" ? s_val + 16 : s_val;
+  s_val = bin_string[3] == "1" ? s_val + 8 : s_val;
+  s_val = bin_string[4] == "1" ? s_val + 4 : s_val;
+  s_val = bin_string[5] == "1" ? s_val + 2 : s_val;
+  s_val = bin_string[6] == "1" ? s_val + 1 : s_val;
+  return s_val;
 }
-
 
 // Return positive int if the string is valid, -1 if not
 function checkStringValidity(bin_string) {
   try {
-    const int_val = parseInt(bin_string)
-    const str_val = int_val.toString()
-    console.log(str_val)
-    console.log(str_val.length)
+    const int_val = parseInt(bin_string);
+    const str_val = int_val.toString();
+    console.log(str_val);
+    console.log(str_val.length);
     if (str_val.length == 8) {
       // console.log("bin_string1");
       if (count1s(str_val) % 2 == 1) {
@@ -80,8 +75,8 @@ const butConnect = document.getElementById("butConnect");
 const GRID_HAPPY = [
   1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0,
 ];
-const GRID_OFF = [
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+const GRID_SAD = [
+  1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1,
 ];
 
 // Check and confirm that the Web Serial API is supported
@@ -95,12 +90,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /**
  * @name connect
- * Opens a Web Serial connection to a micro:bit and sets up the input and
- * output stream.
+ * Opens a Web Serial connection to a Micro:bit and sets up the input and
+ * output stream
  */
 
-// Open a Web Serial connection for the MicroBit inputs and outputs
-// MicroBit uses 9600 baud connection for connecting the serial and the main processor
+// Open a Web Serial connection for the Micro:bit inputs and outputs
+// Micro:bit uses baud connection for connecting the serial and the main processor
 async function connect() {
   // Request a port and open a connection.
   port = await navigator.serial.requestPort();
@@ -115,13 +110,9 @@ async function connect() {
   // Add code to read the stream here.
   let decoder = new TextDecoderStream();
   inputDone = port.readable.pipeTo(decoder.writable);
-  inputStream = decoder.readable
-    .pipeThrough(new TransformStream(new LineBreakTransformer()))
-    // .pipeThrough(new TransformStream(new JSONTransformer()));
-
-  // let decoder = new TextDecoderStream();
-  // inputDone = port.readable.pipeTo(decoder.writable);
-  // inputStream = decoder.readable;
+  inputStream = decoder.readable.pipeThrough(
+    new TransformStream(new LineBreakTransformer())
+  );
 
   reader = inputStream.getReader();
   readSerial();
@@ -129,10 +120,10 @@ async function connect() {
 
 /**
  * @name disconnect
- * Closes the Web Serial connection.
+ * Closes the Web Serial connection
  */
 async function disconnect() {
-  drawGrid(GRID_OFF);
+  drawGrid(GRID_SAD);
   sendGrid();
 
   // Close the input stream (reader)
@@ -159,26 +150,20 @@ async function disconnect() {
 
 /**
  * @name clickConnect
- * Click handler for the connect/disconnect button.
+ * Click handler for the connect/disconnect button
  */
 async function clickConnect() {
-  // Add disconnect code here.
+  // Disconnect Micro:bit if connected
   if (port) {
     await disconnect();
     toggleUIConnected(false);
     return;
   }
 
-  // Add connect code here.
+  // Connect the Micro:bit
   await connect();
-
-  // Reset the grid on connect here.
+  // Reset the grid on connect
   drawGrid(GRID_HAPPY);
-  // sendGrid();
-
-  // Initialize micro:bit buttons.
-  // watchButton("BTN1");
-  // watchButton("BTN2");
 
   toggleUIConnected(true);
 }
@@ -188,17 +173,11 @@ async function clickConnect() {
  * Reads data from the serial input and use it to populate the bar
  */
 async function readSerial() {
-  // let container = "";
   while (true) {
     // console.log("Listening:");
     const { value, done } = await reader.read();
     // console.log("Listening:");
     if (value) {
-      // container += value;
-      // const lines = this.container.split('\r\n');
-      // container = lines.pop();
-      // lines.forEach(line => updateBar(line))
-      // Do something with the serial data here
       updateBar(value);
       // console.log(value);
     }
@@ -213,7 +192,7 @@ async function readSerial() {
 
 /**
  * @name sendGrid
- * Iterates over the checkboxes and generates the command to set the LEDs.
+ * Iterate over the checkboxes and generates the command to set the LEDs
  */
 function sendGrid() {
   // Generate the grid
@@ -226,8 +205,8 @@ function sendGrid() {
 
 /**
  * @name writeToStream
- * Gets a writer from the output stream and send the lines to the micro:bit.
- * @param  {...string} lines lines to send to the micro:bit
+ * Get a writer from the output stream and send the lines to the Micro:bit
+ * @param  {...string} lines lines to send to the Micro:bit
  */
 function writeToStream(...lines) {
   // Write to output stream
@@ -241,11 +220,11 @@ function writeToStream(...lines) {
 
 /**
  * @name LineBreakTransformer
- * TransformStream to parse the stream into lines.
+ * TransformStream to parse the stream into lines
  */
 class LineBreakTransformer {
   constructor() {
-    // A container for holding stream data until a new line.
+    // A container for holding stream data until a new line
     this.container = "";
   }
 
@@ -258,14 +237,14 @@ class LineBreakTransformer {
   }
 
   flush(controller) {
-    // Flush the stream.
+    // Flush the stream
     controller.enqueue(this.container);
   }
 }
 
 /**
  * @name JSONTransformer
- * TransformStream to parse the stream into a JSON object.
+ * TransformStream to parse the stream into a JSON object
  */
 class JSONTransformer {
   transform(chunk, controller) {
@@ -279,7 +258,7 @@ class JSONTransformer {
 }
 
 /**
- * The code below is mostly UI code and is provided to simplify the user experience.
+ * Code for user interface to simplify and enhance the user experience
  */
 
 function initCheckboxes() {
@@ -312,8 +291,6 @@ function toggleUIConnected(connected) {
     cb.setAttribute("disabled", true);
   });
 }
-
-document.getElementById("rectbox").setAttribute("width", testData);
 
 function updateBar(value) {
   const val = checkStringValidity(value);
