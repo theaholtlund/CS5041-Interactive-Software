@@ -297,7 +297,7 @@ function updateBar(value) {
   console.log("value : " + val);
   if (val > 0) {
     console.log("Recieved: " + val);
-    const width = (val / 100) * 100; // Add the max value instead, * 100 to convert to percentage
+    const width = (val / 63) * 100; // Add the max value instead, * 100 to convert to percentage
     document.getElementById("rectbox").setAttribute("width", width + "%");
   }
 }
