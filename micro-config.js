@@ -295,7 +295,7 @@ function toggleUIConnected(connected) {
 function updateBar(value) {
   const val = checkStringValidity(value);
   console.log("value : " + val);
-  if (val > 0) {
+  if (val >= 0) {
     console.log("Recieved: " + val);
     const width = (val / 63) * 100; // Add the max value instead, * 100 to convert to percentage
     document.getElementById("rectbox").setAttribute("width", width + "%");
