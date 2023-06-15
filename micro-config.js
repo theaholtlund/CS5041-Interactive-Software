@@ -1,6 +1,5 @@
 // Module code: CS5041
 // Module: Interactive Hardware and Software
-// Matriculation numbers: 220024877, 180000870, 210000448
 // Configuring the MicroHelper for Disability Assistance
 
 // The code is based on "Getting started with the Web Serial API" tutorial
